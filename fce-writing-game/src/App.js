@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Users, Award, Clock, Send, Trophy, Zap, Star } from 'lucide-react';
-
+const GROQ_API_KEY = process.env.REACT_APP_GROQ_API_KEY;
 // Mock Firebase (thay bằng Firebase thật sau)
 const mockFirebase = {
   games: {},
@@ -56,29 +56,85 @@ const mockFirebase = {
   }
 };
 
-// Mock AI Grading (thay bằng Groq API thật sau)
-const mockAIGrade = async (question, criteria, answer) => {
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  const lowerAnswer = answer.toLowerCase();
-  let score = 0;
-  let feedback = '';
-  
-  if (lowerAnswer.includes('influence') || lowerAnswer.includes('impact')) {
-    score = 2;
-    feedback = 'Good synonym choice!';
-  } else if (lowerAnswer.includes('affect')) {
-    score = 1;
-    feedback = 'Basic synonym, could be better.';
-  } else if (lowerAnswer.includes('exert') || lowerAnswer.includes('shape')) {
-    score = 3;
-    feedback = 'Excellent! Formal and sophisticated.';
-  } else {
-    score = 0;
-    feedback = 'Not quite right. Try again!';
+const gradeWithGroqAPI = async (question, teacherPrompt, studentAnswer) => {
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: `Bạn là AI chấm bài cho trung tâm tiếng Anh LIME.
+
+Nhiệm vụ: Chấm bài của học sinh theo câu hỏi và tiêu chí giáo viên đưa ra.
+
+QUAN TRỌNG: Bạn PHẢI trả về ĐÚNG format JSON sau, KHÔNG thêm text nào khác:
+
+{
+  "score": [số điểm],
+  "feedback": "[Nhận xét ngắn gọn, động viên]"
+}
+
+Lưu ý:
+- Feedback vui vẻ, động viên (đây là warm-up)
+- Luôn bắt đầu bằng lời khen
+- Dùng emoji để tạo năng lượng tích cực`
+          },
+          {
+            role: 'user',
+            content: `📋 CÂU HỎI:
+${question}
+
+🤖 TIÊU CHÍ CHẤM CỦA GIÁO VIÊN:
+${teacherPrompt}
+
+✍️ CÂU TRẢ LỜI CỦA HỌC SINH:
+"${studentAnswer}"
+
+Hãy chấm điểm và cho feedback theo format JSON.`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 300,
+        response_format: { type: "json_object" }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Groq API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices[0].message.content;
+    
+    let result;
+    try {
+      result = JSON.parse(content);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', content);
+      return {
+        score: 0,
+        feedback: '❌ Lỗi định dạng. Vui lòng thử lại!'
+      };
+    }
+    
+    return {
+      score: result.score || 0,
+      feedback: result.feedback || 'Không có phản hồi'
+    };
+    
+  } catch (error) {
+    console.error('Groq API Error:', error);
+    return {
+      score: 0,
+      feedback: '⚠️ Lỗi kết nối AI. Vui lòng thử lại!'
+    };
   }
-  
-  return { score, feedback };
 };
 
 function App() {
@@ -170,7 +226,7 @@ function TeacherPanel({ onBack }) {
     if (!testInput.trim()) return;
     
     setIsTestingAI(true);
-    const result = await mockAIGrade(question, criteria, testInput);
+    const result = await gradeWithGroqAPI(question, criteria, testInput);
     
     setTestAnswers([...testAnswers, {
       input: testInput,
@@ -399,7 +455,7 @@ if (!isAuthenticated) {
                         test.score === 2 ? 'text-blue-600' :
                         test.score === 1 ? 'text-yellow-600' : 'text-red-600'
                       }`}>
-                        {test.score}/3
+                        {test.score} điểm
                       </span>
                     </div>
                     <p className="text-sm text-gray-600">{test.feedback}</p>
@@ -546,11 +602,11 @@ function StudentPanel({ onBack }) {
     if (!answer.trim() || isSubmitting) return;
     
     setIsSubmitting(true);
-    const result = await mockAIGrade(
-      gameData.currentQuestion.text,
-      gameData.currentQuestion.criteria,
-      answer
-    );
+    const result = await gradeWithGroqAPI(
+  gameData.currentQuestion.text,
+  gameData.currentQuestion.criteria,
+  answer
+);
     
     mockFirebase.submitAnswer(pin, name, answer, result.score);
     
