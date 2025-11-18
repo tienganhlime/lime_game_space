@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/lime_game_space/static/css/main.1d5528dd.css",
-    "main.js": "/lime_game_space/static/js/main.5883ce88.js",
+    "main.css": "/lime_game_space/static/css/main.02e57b48.css",
+    "main.js": "/lime_game_space/static/js/main.897d688b.js",
     "static/js/453.514688d2.chunk.js": "/lime_game_space/static/js/453.514688d2.chunk.js",
     "index.html": "/lime_game_space/index.html",
-    "main.1d5528dd.css.map": "/lime_game_space/static/css/main.1d5528dd.css.map",
-    "main.5883ce88.js.map": "/lime_game_space/static/js/main.5883ce88.js.map",
+    "main.02e57b48.css.map": "/lime_game_space/static/css/main.02e57b48.css.map",
+    "main.897d688b.js.map": "/lime_game_space/static/js/main.897d688b.js.map",
     "453.514688d2.chunk.js.map": "/lime_game_space/static/js/453.514688d2.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.1d5528dd.css",
-    "static/js/main.5883ce88.js"
+    "static/css/main.02e57b48.css",
+    "static/js/main.897d688b.js"
   ]
 }
