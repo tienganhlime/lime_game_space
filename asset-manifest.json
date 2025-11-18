@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/fce-writing-game/static/css/main.1d5528dd.css",
+    "main.js": "/fce-writing-game/static/js/main.ce2601eb.js",
+    "static/js/453.514688d2.chunk.js": "/fce-writing-game/static/js/453.514688d2.chunk.js",
+    "index.html": "/fce-writing-game/index.html",
+    "main.1d5528dd.css.map": "/fce-writing-game/static/css/main.1d5528dd.css.map",
+    "main.ce2601eb.js.map": "/fce-writing-game/static/js/main.ce2601eb.js.map",
+    "453.514688d2.chunk.js.map": "/fce-writing-game/static/js/453.514688d2.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1d5528dd.css",
+    "static/js/main.ce2601eb.js"
+  ]
+}
