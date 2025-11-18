@@ -135,6 +135,8 @@ function App() {
 }
 
 function TeacherPanel({ onBack }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
   const [step, setStep] = useState('setup');
   const [pin, setPin] = useState('');
   const [question, setQuestion] = useState('');
@@ -209,7 +211,57 @@ function TeacherPanel({ onBack }) {
     setQuestion(template.question);
     setCriteria(template.criteria);
   };
+   const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    const correctPassword = 'lime2024'; // Đổi password tại đây
+    
+    if (password === correctPassword) {
+      setIsAuthenticated(true);
+    } else {
+      alert('❌ Sai mật khẩu!');
+      setPassword('');
+    }
+  };
+if (!isAuthenticated) {
+    return (
+      <div className="p-6 max-w-md mx-auto">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 border-4 border-green-300">
+          <button onClick={onBack} className="mb-4 text-green-700 hover:text-green-900 font-semibold">
+            ← Back
+          </button>
+          
+          <div className="text-center mb-6">
+            <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+              <span className="text-3xl font-bold text-white">🔒</span>
+            </div>
+            <h2 className="text-2xl font-bold text-green-700">Teacher Login</h2>
+            <p className="text-green-600">Enter password to access</p>
+          </div>
 
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold mb-2 text-gray-700">Password:</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full border-2 border-green-300 rounded-lg p-3 focus:border-green-500 focus:outline-none text-lg"
+                placeholder="Enter password"
+                autoFocus
+              />
+            </div>
+            
+            <button
+              type="submit"
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition shadow-lg"
+            >
+              🔓 Login
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
   if (step === 'setup') {
     return (
       <div className="p-6 max-w-4xl mx-auto">
